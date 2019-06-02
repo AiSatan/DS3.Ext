@@ -7,8 +7,11 @@ namespace AutoDeathCounter
     {
         /// <summary>
         /// 7FF49E871778
-        /// 7FF49E7CAB44 = 140688607718212
+        /// 0x7FF49E7CAB44 = 140688607718212
         /// 7FF48EE9A284
+        /// DarkSoulsIII.exe+63BB310 - call DarkSoulsIII.exe+63BB315
+        /// 0x0000000140000000 - 5368709120
+        /// 0x7FF48EE9A284 - 140688346423940
         /// </summary>
         private const long HPAddress = 140688607718212;
 
@@ -50,7 +53,8 @@ namespace AutoDeathCounter
 
             while (_isRunning)
             {
-                var currentHP = MemoryManager.ReadMemory<int>(HPAddress);
+                var addr = MemoryManager.GetModuleAddress("DarkSoulsIII.exe");
+                var currentHP = MemoryManager.ReadMemory<int>((long)addr + 0x7FF34EE9A284);
 
                 if (currentHP != lastHP)
                 {

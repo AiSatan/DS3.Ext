@@ -12,9 +12,16 @@ namespace AutoDeathCounter
         /// DarkSoulsIII.exe+63BB310 - call DarkSoulsIII.exe+63BB315
         /// 0x0000000140000000 - 5368709120
         /// 0x7FF48EE9A284 - 140688346423940
+        /// 
+        /// DarkSoulsIII.exe+1CD2E8
+        /// DarkSoulsIII.exe+FFB414
+        /// DarkSoulsIII.exe+1517FE4
+        /// DarkSoulsIII.exe+3B5603C
+        /// DarkSoulsIII.exe+3B5627C
         /// </summary>
-        private const long HPAddress = 140688607718212;
-
+        private readonly static IntPtr HPPointer = new IntPtr(0x1447819e8);
+        private const int HPOffset = 0x454;
+        
         private static bool _isRunning;
 
         internal static event Action OnDeath = delegate { };
@@ -54,7 +61,8 @@ namespace AutoDeathCounter
             while (_isRunning)
             {
                 var addr = MemoryManager.GetModuleAddress("DarkSoulsIII.exe");
-                var currentHP = MemoryManager.ReadMemory<int>((long)addr + 0x7FF34EE9A284);
+                var pointerVal = MemoryManager.ReadMemory<IntPtr>(HPPointer);
+                var currentHP = MemoryManager.ReadMemory<int>(IntPtr.Add(pointerVal, HPOffset));
 
                 if (currentHP != lastHP)
                 {

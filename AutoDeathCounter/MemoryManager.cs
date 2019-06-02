@@ -73,7 +73,6 @@ namespace AutoDeathCounter
             return ByteArrayToStructure<T>(buffer);
         }
 
-
         public static byte[] ReadMemory(int offset, int size)
         {
             var buffer = new byte[size];
@@ -120,7 +119,7 @@ namespace AutoDeathCounter
             public const int PROCESS_VM_WRITE = 0x0020;
         }
 
-        #endregion
+        #endregion Other
 
         #region Conversion
 
@@ -165,7 +164,7 @@ namespace AutoDeathCounter
             return array;
         }
 
-        #endregion
+        #endregion Conversion
 
         #region DllImports
 
@@ -176,7 +175,7 @@ namespace AutoDeathCounter
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         [SuppressUnmanagedCodeSecurity]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool CloseHandle(IntPtr hObject);
+        private static extern bool CloseHandle(IntPtr hObject);
 
         [DllImport("ntdll.dll")]
         private static extern bool NtReadVirtualMemory(int hProcess, IntPtr lpBaseAddress, byte[] buffer, int size, ref int lpNumberOfBytesRead);
@@ -184,7 +183,6 @@ namespace AutoDeathCounter
         [DllImport("ntdll.dll")]
         private static extern bool NtWriteVirtualMemory(int hProcess, int lpBaseAddress, byte[] buffer, int size, out int lpNumberOfBytesWritten);
 
-        #endregion
-
+        #endregion DllImports
     }
 }

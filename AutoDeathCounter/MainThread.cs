@@ -1,22 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 
 namespace AutoDeathCounter
 {
     internal static class MainThread
     {
-        /// <summary>  
+        /// <summary>
         /// 7FF49E871778
         /// 7FF49E7CAB44 = 140688607718212
         /// 7FF48EE9A284
         /// </summary>
-        const long HPAddress = 140688607718212;
+        private const long HPAddress = 140688607718212;
+
         private static bool _isRunning;
+
         internal static event Action OnDeath = delegate { };
+
         internal static event Action OnRespawn = delegate { };
+
         internal static event OnHPChangeHandle OnHPChange = delegate { };
+
         internal delegate void OnHPChangeHandle(int currentHP, int lastHP);
 
         public static void Run()
@@ -36,9 +39,9 @@ namespace AutoDeathCounter
 
             Execute();
 
-            Console.WriteLine("Closed.");
             // close process handler
             MemoryManager.Detach();
+            Console.WriteLine("Closed.");
         }
 
         private static void Execute()

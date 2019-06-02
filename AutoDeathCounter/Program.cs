@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Security.Principal;
 using System.Threading.Tasks;
 
@@ -20,41 +19,19 @@ namespace AutoDeathCounter
             InitEvents();
 
             Console.WriteLine("Running main..");
-            Task.Run(MainThread.Run);
+            var task = Task.Run(MainThread.Run);
 
             Console.WriteLine("Press 'any' to quit");
             Console.ReadKey();
             MainThread.Stop();
+            task.Wait(1000);
         }
 
         private static void InitEvents()
         {
-            MainThread.OnDeath += MainThread_OnDeath;
-            MainThread.OnRespawn += MainThread_OnRespawn;
-            MainThread.OnHPChange += MainThread_OnHPChange;
-        }
-
-        private static void MainThread_OnHPChange(int currentHP, int lastHP)
-        {
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine($"currentHP: {currentHP}");
-            Console.ForegroundColor = ConsoleColor.Gray;
-        }
-
-        private static void MainThread_OnDeath()
-        {
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine($"OnDeath");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "output.txt"), "dead");
-        }
-
-        private static void MainThread_OnRespawn()
-        {
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine($"OnRespawn");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "output.txt"), "alive");
+            MainThread.OnDeath += EventHandles.MainThread_OnDeath;
+            MainThread.OnRespawn += EventHandles.MainThread_OnRespawn;
+            MainThread.OnHPChange += EventHandles.MainThread_OnHPChange;
         }
 
         private static bool IsAdmin()

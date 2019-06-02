@@ -3,6 +3,12 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
+    <Authors>AiSatan</Authors>
+    <Company>RED</Company>
+    <Product>DS3.Ext</Product>
+    <Copyright>RED</Copyright>
+    <PackageProjectUrl>https://aisatan.name</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AiSatan/DS3.Ext</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

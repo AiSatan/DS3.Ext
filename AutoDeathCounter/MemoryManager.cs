@@ -51,16 +51,28 @@ namespace AutoDeathCounter
 
             var buffer = new byte[ByteSize];
 
+            NtReadVirtualMemory((int)m_iProcessHandle, (IntPtr)address, buffer, buffer.Length, ref m_iBytesRead);
+
+            return ByteArrayToStructure<T>(buffer);
+        }
+
+        public static T ReadMemory<T>(IntPtr address) where T : struct
+        {
+            var ByteSize = Marshal.SizeOf(typeof(T));
+
+            var buffer = new byte[ByteSize];
+
             NtReadVirtualMemory((int)m_iProcessHandle, address, buffer, buffer.Length, ref m_iBytesRead);
 
             return ByteArrayToStructure<T>(buffer);
         }
 
+
         public static byte[] ReadMemory(int offset, int size)
         {
             var buffer = new byte[size];
 
-            NtReadVirtualMemory((int)m_iProcessHandle, offset, buffer, size, ref m_iBytesRead);
+            NtReadVirtualMemory((int)m_iProcessHandle, (IntPtr)offset, buffer, size, ref m_iBytesRead);
 
             return buffer;
         }
@@ -69,18 +81,18 @@ namespace AutoDeathCounter
         {
             var ByteSize = Marshal.SizeOf(typeof(T));
             var buffer = new byte[ByteSize * MatrixSize];
-            NtReadVirtualMemory((int)m_iProcessHandle, Adress, buffer, buffer.Length, ref m_iBytesRead);
+            NtReadVirtualMemory((int)m_iProcessHandle, (IntPtr)Adress, buffer, buffer.Length, ref m_iBytesRead);
 
             return ConvertToFloatArray(buffer);
         }
 
-        public static int GetModuleAddress(string Name)
+        public static IntPtr GetModuleAddress(string Name)
         {
             try
             {
                 foreach (ProcessModule ProcMod in m_iProcess.Modules)
-                    if (Name == ProcMod.ModuleName)
-                        return (int)ProcMod.BaseAddress;
+                    if (Name.ToUpper() == ProcMod.ModuleName.ToUpper())
+                        return ProcMod.BaseAddress;
             }
             catch
             {
@@ -90,7 +102,7 @@ namespace AutoDeathCounter
             Console.WriteLine("ERROR: Cannot find - " + Name + " | Check file extension.");
             Console.ResetColor();
 
-            return -1;
+            return IntPtr.Zero;
         }
 
         #region Other
@@ -154,10 +166,10 @@ namespace AutoDeathCounter
         [DllImport("kernel32.dll")]
         private static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
 
-        [DllImport("kernel32.dll")]
-        private static extern bool NtReadVirtualMemory(int hProcess, int lpBaseAddress, byte[] buffer, int size, ref int lpNumberOfBytesRead);
+        [DllImport("ntdll.dll")]
+        private static extern bool NtReadVirtualMemory(int hProcess, IntPtr lpBaseAddress, byte[] buffer, int size, ref int lpNumberOfBytesRead);
 
-        [DllImport("kernel32.dll")]
+        [DllImport("ntdll.dll")]
         private static extern bool NtWriteVirtualMemory(int hProcess, int lpBaseAddress, byte[] buffer, int size, out int lpNumberOfBytesWritten);
 
         #endregion

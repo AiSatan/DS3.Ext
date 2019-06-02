@@ -1,17 +1,15 @@
 ﻿using System;
+using System.IO;
 using System.Security.Principal;
 using System.Threading.Tasks;
 
 namespace AutoDeathCounter
 {
-    internal class Program
+    internal static class Program
     {
-        internal static bool IsRunnings;
-
         private static void Main(string[] args)
         {
             Console.WriteLine("Starting..");
-            IsRunnings = true;
 
             if (!IsAdmin())
             {
@@ -19,14 +17,44 @@ namespace AutoDeathCounter
                 throw new AccessViolationException("Run as admin is required");
             }
 
-            Console.WriteLine("Running main..");
+            InitEvents();
 
-            Task.Run(MainThread.Start);
+            Console.WriteLine("Running main..");
+            Task.Run(MainThread.Run);
 
             Console.WriteLine("Press 'any' to quit");
             Console.ReadKey();
+            MainThread.Stop();
+        }
 
-            IsRunnings = false;
+        private static void InitEvents()
+        {
+            MainThread.OnDeath += MainThread_OnDeath;
+            MainThread.OnRespawn += MainThread_OnRespawn;
+            MainThread.OnHPChange += MainThread_OnHPChange;
+        }
+
+        private static void MainThread_OnHPChange(int currentHP, int lastHP)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine($"currentHP: {currentHP}");
+            Console.ForegroundColor = ConsoleColor.Gray;
+        }
+
+        private static void MainThread_OnDeath()
+        {
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine($"OnDeath");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "output.txt"), "dead");
+        }
+
+        private static void MainThread_OnRespawn()
+        {
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine($"OnRespawn");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "output.txt"), "alive");
         }
 
         private static bool IsAdmin()

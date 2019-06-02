@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 
 namespace AutoDeathCounter
@@ -29,6 +31,11 @@ namespace AutoDeathCounter
             return false;
         }
 
+        public static void Detach()
+        {
+            CloseHandle(m_iProcessHandle);
+        }
+
         public static void WriteMemory<T>(int Address, object Value)
         {
             throw new AccessViolationException();
@@ -47,13 +54,12 @@ namespace AutoDeathCounter
 
         public static T ReadMemory<T>(int address) where T : struct
         {
-            var ByteSize = Marshal.SizeOf(typeof(T));
+            return ReadMemory<T>(new IntPtr(address));
+        }
 
-            var buffer = new byte[ByteSize];
-
-            NtReadVirtualMemory((int)m_iProcessHandle, (IntPtr)address, buffer, buffer.Length, ref m_iBytesRead);
-
-            return ByteArrayToStructure<T>(buffer);
+        public static T ReadMemory<T>(long address) where T : struct
+        {
+            return ReadMemory<T>(new IntPtr(address));
         }
 
         public static T ReadMemory<T>(IntPtr address) where T : struct
@@ -165,6 +171,12 @@ namespace AutoDeathCounter
 
         [DllImport("kernel32.dll")]
         private static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+        [SuppressUnmanagedCodeSecurity]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool CloseHandle(IntPtr hObject);
 
         [DllImport("ntdll.dll")]
         private static extern bool NtReadVirtualMemory(int hProcess, IntPtr lpBaseAddress, byte[] buffer, int size, ref int lpNumberOfBytesRead);

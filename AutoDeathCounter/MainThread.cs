@@ -5,25 +5,74 @@ using System.Threading;
 
 namespace AutoDeathCounter
 {
-    internal class MainThread
+    internal static class MainThread
     {
         /// <summary>  
         /// 7FF49E871778
-        /// 7FF49E7CAB44
+        /// 7FF49E7CAB44 = 140688607718212
         /// 7FF48EE9A284
         /// </summary>
-        public static void Start()
+        const long HPAddress = 140688607718212;
+        private static bool _isRunning;
+        internal static event Action OnDeath = delegate { };
+        internal static event Action OnRespawn = delegate { };
+        internal static event OnHPChangeHandle OnHPChange = delegate { };
+        internal delegate void OnHPChangeHandle(int currentHP, int lastHP);
+
+        public static void Run()
         {
+            _isRunning = true;
+
             Console.WriteLine("Attaching..");
             var found = false;
 
-            while (!found && Program.IsRunnings)
+            while (!found && _isRunning)
             {
                 Thread.Sleep(250);
                 found = MemoryManager.Attatch("DarkSoulsIII");
             }
-            var baseAddress = MemoryManager.GetModuleAddress("DarkSoulsIII.exe");
-            Console.WriteLine(MemoryManager.ReadMemory<int>(new IntPtr(140688607718212)));
+
+            Console.WriteLine("Running..");
+
+            Execute();
+
+            Console.WriteLine("Closed.");
+            // close process handler
+            MemoryManager.Detach();
+        }
+
+        private static void Execute()
+        {
+            var lastHP = -1;
+
+            while (_isRunning)
+            {
+                var currentHP = MemoryManager.ReadMemory<int>(HPAddress);
+
+                if (currentHP != lastHP)
+                {
+                    OnHPChange(currentHP, lastHP);
+
+                    if (currentHP == 0)
+                    {
+                        OnDeath();
+                    }
+
+                    if (lastHP == 0)
+                    {
+                        OnRespawn();
+                    }
+                }
+
+                lastHP = currentHP;
+
+                Thread.Sleep(500);
+            }
+        }
+
+        public static void Stop()
+        {
+            _isRunning = false;
         }
     }
 }

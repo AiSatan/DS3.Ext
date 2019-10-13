@@ -10,11 +10,19 @@ namespace AutoDeathCounter
 
         internal static void MainThread_OnHPChange(int currentHP, int lastHP)
         {
+            var vector = currentHP - lastHP;
+            var strVector = vector > 0 ? $"+{vector}" : $"{vector}";
+
+            if(lastHP == 0)
+            {
+                strVector = "0";
+            }
+
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine($"currentHP: {currentHP}");
+            Console.WriteLine($"currentHP: {currentHP}, Damage: {strVector}");
             Console.ForegroundColor = ConsoleColor.Gray;
 
-            File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "outputHP.txt"), $"{currentHP}");
+            File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "outputHP.txt"), $"{currentHP} ({strVector})");
         }
 
         internal static void MainThread_OnDeath()

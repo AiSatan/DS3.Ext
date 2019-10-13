@@ -21,8 +21,10 @@ namespace AutoDeathCounter
             Console.WriteLine("Running main..");
             var task = Task.Run(MainThread.Run);
 
-            Console.WriteLine("Press 'any' to quit");
-            Console.ReadKey();
+            while (Console.ReadKey().Key != ConsoleKey.Q)
+            {
+                Console.WriteLine("Press 'Q' to quit");
+            }
             MainThread.Stop();
             task.Wait(1000);
         }

@@ -58,9 +58,9 @@ namespace AutoDeathCounter
         {
             var lastHP = -1;
 
+            var addr = MemoryManager.GetModuleAddress("DarkSoulsIII.exe");
             while (_isRunning)
             {
-                var addr = MemoryManager.GetModuleAddress("DarkSoulsIII.exe");
                 var pointerVal = MemoryManager.ReadMemory<IntPtr>(HPPointer);
                 var currentHP = MemoryManager.ReadMemory<int>(IntPtr.Add(pointerVal, HPOffset));
 
@@ -81,7 +81,7 @@ namespace AutoDeathCounter
 
                 lastHP = currentHP;
 
-                Thread.Sleep(500);
+                Thread.Sleep(50);
             }
         }
 
